@@ -198,3 +198,22 @@ users:
 ```
 - B7: Context hiện tại đang là : kubernetes-admin@kubernetes là context kubenetes ở máy ảo master
     +  lệnh swith context : `kubectl config use-context docker-desktop`
+
+# 2. Kubernetes Dashboard [Code demo ở nhánh : part2-k8s-dashboard]
+- B1. Tại folder dashboard: tạo file dashboard-v2-beta6.yaml
+- B2. Sau đó chạy lệnh sau: `kubectl apply -f dashboard-v2-beta6.yaml`
+- B3. Xác thực SSL
+```shell
+openssl req -nodes -newkey rsa:2048 -keyout certs/dashboard.key -out certs/dashboard.csr -subj
+openssl x509 -req -sha256 -days 365 -in certs/dashboard.csr -signkey certs/dashboard.key -out certs/dashboard.crt
+```
+- B4. Tạo secret từ các file trong thư mục certs, và trong namespace là kubernetes-dashboard
+`kubectl create secret generic kubernetes-dashboard-certs --from-file=certs -n kubernetes-dashboard`
+- B5. Kiểm tra: 
+```shell
+$ kubectl get secret -n kubernetes-dashboard
+NAME                              TYPE     DATA   AGE
+kubernetes-dashboard-certs        Opaque   3      54s
+kubernetes-dashboard-csrf         Opaque   1      15m
+kubernetes-dashboard-key-holder   Opaque   0      15m
+```
