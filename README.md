@@ -10,7 +10,15 @@ worker2.xtl	        HĐH CentOS7, Docker CE, Kubernetes. Địa chỉ IP 172.16.
 ```
 
 - B1: Cài vagrant
-- B2: Truy cập folder _[virtual_machine_config/kubernetes-centos7/master]_. Chạy lệnh: `vagrant up` (Nếu lỗi có thể xem hướng dẫn ở project vagrant_guide)
+- B2: Truy cập folder _[virtual_machine_config/kubernetes-centos7/master]_. Chạy lệnh: `vagrant up` 
+   + Nếu lỗi thì làm như sau:
+```shell
+vagrant ssh
+sudo yum -y update kernel
+exit
+vagrant reload --provision
+```
+
 - B3: Kiểm kết quả bằng cách ssh từ máy host vào máy ảo (Mật khẩu là 123). Kết quả như hình sau:
 ```shell
     hunglp@HungLP MINGW64 /d/Workspace/Learning/learn-kubernetes-cluster/virtual_machine_config/kubernetes-centos7/master (master)
@@ -44,10 +52,16 @@ worker2.xtl	        HĐH CentOS7, Docker CE, Kubernetes. Địa chỉ IP 172.16.
 ```
 - B4 : Tạo máy ảo worker1 và worker 2 tương tự ở 2 folder worker1 và worker2
 
+
 ## 1.2 Tạo cluster
 - B1: ssh vào máy master `ssh root@172.16.10.100`, Sau đó chạy lệnh sau: `kubeadm init --apiserver-advertise-address=172.16.10.100 --pod-network-cidr=192.168.0.0/16`
-    + ở đây Trong lệnh khởi tạo cluster có tham số --pod-network-cidr để chọn cấu hình mạng của POD, do dự định dùng Addon calico nên chọn--pod-network-cidr=192.168.0.0/16
-    + Nếu gặp lỗi khi chạy lệnh kubeadm init này thì chạy thêm 2 lệnh sau rồi chạy lại kubeadm init:
+
+    +  ở đây Trong lệnh khởi tạo cluster có tham số --pod-network-cidr để chọn cấu hình mạng của POD, do dự định dùng Addon calico nên chọn--pod-network-cidr=192.168.0.0/16
+    +  Nếu gặp lỗi khi chạy lệnh kubeadm init này thì chạy  cụm lệnh sau rồi chạy lại kubeadm init:
+    `sudo yum makecache`
+    `sudo yum -y install containerd`
+    `systemctl start containerd`
+    `systemctl enable containerd`
     `rm /etc/containerd/config.toml`
     `systemctl restart containerd`
 
@@ -57,6 +71,15 @@ mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
+- B3: Tại máy master, Cài pluging calico : 
+`kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml`
+
+- B2.Tại máy master, chạy tiếp lệnh sau để gen ra lệnh join : 
+`kubeadm token create --print-join-command`
+
+- Tại máy worker, apply lệnh join sau: 
+`kubeadm join 172.16.10.100:6443 --token mwm3oi.81l9gh6fpmafn1b4 --discovery-token-ca-cert-hash sha256:3a5f72c08505f4609165f6cd689b6b93a2cab7d50a7d4bc74053a23c85b0e451`
+
 
 - B3: Tiếp đó, nó yêu cầu cài đặt một Plugin mạng trong các Plugin tại addon, ở đây đã chọn calico, nên chạy lệnh sau để cài nó
 `kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml`

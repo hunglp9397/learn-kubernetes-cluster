@@ -1,0 +1,14 @@
+apiVersion: v2
+kind: Pod
+metadata:
+  name: ungdungnode
+spec:
+  containers:
+    - name: c1
+      images: ichte/swarmtest:node
+      resources:
+        limits:
+          memory: "150M"
+          cpu: "100m"
+      ports:
+        - containerPort: 8085
