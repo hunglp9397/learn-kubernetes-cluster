@@ -71,20 +71,25 @@ mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
-- B3: Tại máy master, Cài pluging calico : 
-`kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml`
+- B3: Tại máy master, Cài plugin calico : 
+`kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml`
+  + Kiểm tra thông tin pods : `kubectl get pods -A`
+  + Lỗi calico-kube-controller pending:
+    + Fix bằng cách unset schedule : 
+      `kubectl taint nodes --all node-role.kubernetes.io/control-plane-`
+      `kubectl taint nodes --all node-role.kubernetes.io/master-`
 
-- B2.Tại máy master, chạy tiếp lệnh sau để gen ra lệnh join : 
+- B4.Tại máy master, chạy tiếp lệnh sau để gen ra lệnh join : 
 `kubeadm token create --print-join-command`
 
-- Tại máy worker, apply lệnh join sau: 
+- B5.Tại máy worker, apply lệnh join sau: 
 `kubeadm join 172.16.10.100:6443 --token mwm3oi.81l9gh6fpmafn1b4 --discovery-token-ca-cert-hash sha256:3a5f72c08505f4609165f6cd689b6b93a2cab7d50a7d4bc74053a23c85b0e451`
 
 
-- B3: Tiếp đó, nó yêu cầu cài đặt một Plugin mạng trong các Plugin tại addon, ở đây đã chọn calico, nên chạy lệnh sau để cài nó
+- B6: Tiếp đó, nó yêu cầu cài đặt một Plugin mạng trong các Plugin tại addon, ở đây đã chọn calico, nên chạy lệnh sau để cài nó
 `kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml`
 
-- B4: Kiểm tra cluster:
+- B7: Kiểm tra cluster:
 ```shell
 # Thông tin cluster
 kubectl cluster-info
@@ -95,7 +100,7 @@ kubectl get pods -A
 ```
 ![2](/img_guide/2.png)
 
-- B5: Mở kết nối của máy master
+- B8: Mở kết nối của máy master
     + Tại máy master, Thực hiện lệnh sau với Cluster để lấy lệnh kết nối: `kubeadm token create --print-join-command`
     + Kết quả:
         ```shell
@@ -103,7 +108,7 @@ kubectl get pods -A
         kubeadm join 172.16.10.100:6443 --token n7olii.yro8krwj96ddnz6x --discovery-token-ca-cert-hash sha256:398a0bacced59719fab0e7eab6e12ca3af546be11923308290db96838937a21d  
         ```
 
-- B6: Kết nối các các máy worker tới máy master
+- B9: Kết nối các các máy worker tới máy master
     + Tại máy worker1, worker2, Thực hiện lệnh vừa lấy được:`kubeadm join 172.16.10.100:6443 --token n7olii.yro8krwj96ddnz6x --discovery-token-ca-cert-hash sha256:398a0bacced59719fab0e7eab6e12ca3af546be11923308290db96838937a21d `
     + Nếu gặp lỗi khi chạy lệnh kubeadm join này thì chạy thêm 2 lệnh sau rồi chạy lại kubeadm join:
         `rm /etc/containerd/config.toml`
