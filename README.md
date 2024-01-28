@@ -60,7 +60,7 @@ vagrant reload --provision
       sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
 ## 1.2 Tạo cluster
-- B1: ssh vào máy master `ssh root@172.16.10.100`, Sau đó chạy lệnh sau: `kubeadm init --apiserver-advertise-ku=172.16.10.100 --pod-network-cidr=192.168.0.0/16`
+- B1: ssh vào máy master `ssh root@172.16.10.100`, Sau đó chạy lệnh sau: `kubeadm init --apiserver-advertise-address=172.16.10.100 --pod-network-cidr=192.168.0.0/16`
 
     +  ở đây Trong lệnh khởi tạo cluster có tham số --pod-network-cidr để chọn cấu hình mạng của POD, do dự định dùng Addon calico nên chọn--pod-network-cidr=192.168.0.0/16
     +  Nếu gặp lỗi khi chạy lệnh kubeadm init này thì chạy  cụm lệnh sau rồi chạy lại kubeadm init:
@@ -71,16 +71,13 @@ vagrant reload --provision
     `rm /etc/containerd/config.toml`
     `systemctl restart containerd`
 
-- B1.2. Fix lỗi:
-  + Kiểm tra thông tin pods: `kubectl get pods -A`
-  + Cách fix lỗi calico-node CrashLoopBackOff
-
 - B2 : Sau khi lệnh chạy xong, chạy tiếp cụm lệnh nó yêu cầu chạy sau khi khởi tạo- để chép file cấu hình đảm bảo trình kubectl trên máy này kết nối Cluster
 ```shell
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 ```
+
 - B3: Tại máy master, Cài plugin calico : 
 `kubectl apply -f https://docs.projectcalico.org/v3.10/manifests/calico.yaml`
   + Kiểm tra thông tin pods : `kubectl get pods -A`
