@@ -50,11 +50,17 @@ vagrant reload --provision
     Experimental:     false
     [root@master ~]#
 ```
+
 - B4 : Tạo máy ảo worker1 và worker 2 tương tự ở 2 folder worker1 và worker2
-
-
+- B5 : Kiểm tra `kubectl version -o json`
+  + Nếu thấy báo lỗi `The connection to the server localhost:8080 was refused - did you specify the right host or port?` Thì fix như sau:
+```shell
+      mkdir -p $HOME/.kube
+      sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+      sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
 ## 1.2 Tạo cluster
-- B1: ssh vào máy master `ssh root@172.16.10.100`, Sau đó chạy lệnh sau: `kubeadm init --apiserver-advertise-address=172.16.10.100 --pod-network-cidr=192.168.0.0/16`
+- B1: ssh vào máy master `ssh root@172.16.10.100`, Sau đó chạy lệnh sau: `kubeadm init --apiserver-advertise-ku=172.16.10.100 --pod-network-cidr=192.168.0.0/16`
 
     +  ở đây Trong lệnh khởi tạo cluster có tham số --pod-network-cidr để chọn cấu hình mạng của POD, do dự định dùng Addon calico nên chọn--pod-network-cidr=192.168.0.0/16
     +  Nếu gặp lỗi khi chạy lệnh kubeadm init này thì chạy  cụm lệnh sau rồi chạy lại kubeadm init:
@@ -64,6 +70,10 @@ vagrant reload --provision
     `systemctl enable containerd`
     `rm /etc/containerd/config.toml`
     `systemctl restart containerd`
+
+- B1.2. Fix lỗi:
+  + Kiểm tra thông tin pods: `kubectl get pods -A`
+  + Cách fix lỗi calico-node CrashLoopBackOff
 
 - B2 : Sau khi lệnh chạy xong, chạy tiếp cụm lệnh nó yêu cầu chạy sau khi khởi tạo- để chép file cấu hình đảm bảo trình kubectl trên máy này kết nối Cluster
 ```shell
@@ -78,7 +88,15 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
     + Fix bằng cách unset schedule : 
       `kubectl taint nodes --all node-role.kubernetes.io/control-plane-`
       `kubectl taint nodes --all node-role.kubernetes.io/master-`
-
+    + Cách fix lỗi coredns - ContainerRunning: 
+```shell
+      1. remove calico related configuration in cni.
+        ls /etc/cni/net.d/
+        sudo rm /etc/cni/net.d/10-calico.conflist
+        sudo rm /etc/cni/net.d/calico-kubeconfig
+      2. re-deploy coredns
+        kubectl rollout restart deployment  coredns -n kube-system
+```
 - B4.Tại máy master, chạy tiếp lệnh sau để gen ra lệnh join : 
 `kubeadm token create --print-join-command`
 
