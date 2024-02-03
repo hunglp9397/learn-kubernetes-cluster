@@ -198,3 +198,20 @@ users:
 ```
 - B7: Context hiện tại đang là : kubernetes-admin@kubernetes là context kubenetes ở máy ảo master
     +  lệnh swith context : `kubectl config use-context docker-desktop`
+
+# 2. Gán nhãn cho node (ko quan trọng lắm có thể bỏ qua)
+  - Chạy lệnh sau để gán nhãn cho kube-worker-1: `kubectl label node kube-worker-1 nodeabc=dechayungdungphp`
+  - Kiểm tra : 
+```shell
+  PS C:\Users\hunglp> kubectl describe no kube-worker-1
+  Name:               kube-worker-1
+  Roles:              <none>
+  Labels:             beta.kubernetes.io/arch=amd64
+                      beta.kubernetes.io/os=linux
+                      kubernetes.io/arch=amd64
+                      kubernetes.io/hostname=kube-worker-1
+                      kubernetes.io/os=linux
+                      nodeabc=dechayungdungphp
+```
+
+# 3. Ví dụ về pod
