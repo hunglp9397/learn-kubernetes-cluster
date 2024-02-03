@@ -165,7 +165,7 @@ kubectl get pods -A
     C:\Users\hunglp>
 ```
 - B2: Lấy thông tin kubectl ở máy master tại đường dẫn file sau:
-`[root@master /]# cd etc/kubernetes/admin.conf`
+`[root@master /]# cd /etc/kubernetes/admin.conf`
 - B3: Lấy thông tin kubectl ở máy host tại đường dẫn sau:
  `C:\Users\hunglp\.kube\config`
 - B4. Thực hiện copy các mục : context, cluster, user ở file `[root@master /]# cd etc/kubernetes/admin.conf` vào file `C:\Users\hunglp\.kube\config`
@@ -260,3 +260,5 @@ kubernetes-dashboard-certs        Opaque   3      54s
 kubernetes-dashboard-csrf         Opaque   1      15m
 kubernetes-dashboard-key-holder   Opaque   0      15m
 ```
+
+# 3. 

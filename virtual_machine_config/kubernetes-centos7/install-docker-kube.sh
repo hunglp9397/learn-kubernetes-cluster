@@ -69,7 +69,7 @@ EOF
 setenforce 0
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 
-systemctl enable kubelet
+systemctl enable kubelet 
 systemctl start kubelet
 
 # Configure NetworkManager before attempting to use Calico networking.
