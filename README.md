@@ -214,7 +214,7 @@ users:
                       nodeabc=dechayungdungphp
 ```
 
-# 3. Ví dụ về pod
+# 3. Ví dụ về pod, Và truy cập giữa các pod với nhau, Và truy cập từ máy host tới pod
 - Tạo file 1-swarm-test-node.yaml
 - Apply file manifest yaml : `kubectl apply -f 1-swarm-test-node.yaml -n kube-system`, `kubectl  apply -f 2-nginx.yaml -n kube-system`, `kubectl apply -f 3-tools.yaml -n kube-system`
 - Kết quả:
@@ -227,6 +227,20 @@ users:
   root@tools:/# curl 10.1.1.164:8085
   Swarm serive (Node App), hostname=ungdungnoderoot@tools:/#
 ```
-- Tại máy host, để truy cập vào container trong cluster cần lệnh chạy lệnh sau ở máy host : `kube proxy`
+- Tại máy host, để truy cập vào container trong cluster cần lệnh chạy lệnh sau ở máy host : `kubectl proxy --accept-hosts='.*'`
 - Để truy cập từ máy host vào container nginxapp(chạy cổng 8080) : `http://localhost:8001/api/v1/namespaces/default/pods/nginxapp/proxy/`
 - Để truy cập từ máy host vào container ungdungnode(chạy cổng 8085) : `http://localhost:8001/api/v1/namespaces/default/pods/ungdungnode:8085/proxy/`
+
+# 4. Ví dụ về pod chạy nhiều containers
+## 4.1 Pod chyaj nhieefu containers
+- Tạo file 4-nginx-swarmtest.yaml và apply 
+- Trong container nginx-swarmtest vừa mới được tạo, thì có 2 container là n1 và s1
+- Nếu truy cập vào container chạy pods này, Vì ta có 2 container chạy nên nó mặc định exec truy cập container đầu tiên trừ trên xuống dưới : `kubectl exec nginx-swarmtest ls / `
+- Trong trường hợp muốn chạy lệnh ls (lệnh list file ) và chỉ rõ container nào, thì cần chạy lệnh sau : `kubectl exec nginx-swarmtest ls / -c s1`
+- Tương tự để vào được container nào đó, cần chỉ rõ là container nào muốn truy cập vào, Ví dụ : `kubectl exec -it nginx-swarmtest bash -c n1`
+- Để truy cập từ máy host thì cần chạy `kubectl proxy --accept-hosts='.*'` 
+  + Truy cập container s1 chạy cổng 8085 : `http://localhost:8001/api/v1/namespaces/default/pods/nginx-swarmtest:8085/proxy/`
+  + Truy cập container n1 chạy cổng 8080 : `http://localhost:8001/api/v1/namespaces/default/pods/nginx-swarmtest/proxy/`
+
+
+## 4.2 Pod with Volumes
