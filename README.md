@@ -215,3 +215,18 @@ users:
 ```
 
 # 3. Ví dụ về pod
+- Tạo file 1-swarm-test-node.yaml
+- Apply file manifest yaml : `kubectl apply -f 1-swarm-test-node.yaml -n kube-system`, `kubectl  apply -f 2-nginx.yaml -n kube-system`, `kubectl apply -f 3-tools.yaml -n kube-system`
+- Kết quả:
+![kết quả 3](/img_guide/3.png)
+- Giả sử truy cập vào container của pods tools : `kubectl exec -it po/tools bash`
+- Tại command line của container tools, Truy cập đến cổng 8080 của container chạy pods nginxapp, Kết quả như sau:
+![kết quả 3](/img_guide/4.png)
+- Tương tự, tại Command line của containers tools, Truy cập đến cổng 8085 của container chạy pods ungdungnode, Kết quả như sau:
+```shell
+  root@tools:/# curl 10.1.1.164:8085
+  Swarm serive (Node App), hostname=ungdungnoderoot@tools:/#
+```
+- Tại máy host, để truy cập vào container trong cluster cần lệnh chạy lệnh sau ở máy host : `kube proxy`
+- Để truy cập từ máy host vào container nginxapp(chạy cổng 8080) : `http://localhost:8001/api/v1/namespaces/default/pods/nginxapp/proxy/`
+- Để truy cập từ máy host vào container ungdungnode(chạy cổng 8085) : `http://localhost:8001/api/v1/namespaces/default/pods/ungdungnode:8085/proxy/`
