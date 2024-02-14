@@ -244,3 +244,20 @@ users:
 
 
 ## 4.2 Pod with Volumes
+- Tạo file 5-nginx-swamtest-vol.yaml và apply 
+- Để truy cập từ máy host vào container nginx-swarmtest-vol : `http://localhost:8001/api/v1/namespaces/default/pods/nginx-swarmtest-vol/proxy/`
+- Nếu báo lỗi 403 thì do trong config khai báo volume chưa có file html :
+```shell
+    # Định nghĩa một volume - ánh xạ thư mục /home/www máy host
+    - name: "myvol"
+      hostPath:
+          path: "/home/html"
+```
+
+- Do vậy cần truy cập vào máy worker chạy container này, và tạo file index.html tại đường dẫn /home/html/index.html:
+```shell
+ssh generic@192.168.177.3
+generic@kube-worker-1:~$ cd /home/html
+generic@kube-worker-1:/home/html$ ls
+index.html
+```
