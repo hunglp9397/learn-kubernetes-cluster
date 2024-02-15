@@ -282,3 +282,26 @@ spec:
 - Để xem thông tin chi tiết của replicaset : `kubectl describe rs/rsapp`
 - Để hiển thị các pods của 1 labels nào đó : `kubectl get pod -l "app=rsapp"`
 
+## 5.2 Horizontal Pod AutoScaler
+- Trong folder rs. Tạo file 2.hpa.yaml
+- Apply file này : `kubectl apply -f 2.hpa.yaml`
+- Kết quả:
+```shell
+PS C:\Users\hunglp> kubectl get all -o wide
+NAME                      READY   STATUS    RESTARTS      AGE     IP            NODE            NOMINATED NODE   READINESS GATES
+pod/nginx-swarmtest-vol   2/2     Running   4 (24h ago)   10d     10.0.180.20   kube-worker-1   <none>           <none>
+pod/rsapp-59h8v           1/1     Running   0             91m     10.0.180.21   kube-worker-1   <none>           <none>
+pod/rsapp-bl5hw           0/1     Pending   0             3m24s   <none>        <none>          <none>           <none>
+pod/rsapp-fw9jx           1/1     Running   0             29m     10.0.180.23   kube-worker-1   <none>           <none>
+pod/rsapp-hkw6p           1/1     Running   0             3m24s   10.0.180.24   kube-worker-1   <none>           <none>
+pod/rsapp-jdgll           1/1     Running   0             91m     10.0.180.22   kube-worker-1   <none>           <none>
+
+NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE   SELECTOR
+service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   12d   <none>
+
+NAME                    DESIRED   CURRENT   READY   AGE   CONTAINERS   IMAGES                 SELECTOR
+replicaset.apps/rsapp   5         5         4       91m   app          ichte/swarmtest:node   app=rsapp
+
+NAME                                               REFERENCE          TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/rsapp-scaler   ReplicaSet/rsapp   <unknown>/50%   5         10        5          3m39s
+```
