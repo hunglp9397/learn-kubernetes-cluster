@@ -261,3 +261,24 @@ generic@kube-worker-1:~$ cd /home/html
 generic@kube-worker-1:/home/html$ ls
 index.html
 ```
+
+# 5. Replicaset 
+## 5.1 Ví dụ Replicaset
+- Tạo file 1.app.yaml trong folder rs
+- Tạo file 2.rs.yaml trong folder rs
+- Apply 2 file yaml  
+- Lý thuyết về Replicaset:
+  + Về cơ bản thì replicaset chỉ quản lý các pod dựa trên labels, ví dụ trong file 2.rs.yaml có khai báo như sau:
+```shell
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: rsapp
+```
+
+- Để kiểm tra replicaset : `kubectl get rs -o wide`
+- Để xuất file manifest của replicaset : `kubectl get rs -o yaml`
+- Để xem thông tin chi tiết của replicaset : `kubectl describe rs/rsapp`
+- Để hiển thị các pods của 1 labels nào đó : `kubectl get pod -l "app=rsapp"`
+
