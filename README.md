@@ -231,8 +231,8 @@ users:
 - Để truy cập từ máy host vào container nginxapp(chạy cổng 8080) : `http://localhost:8001/api/v1/namespaces/default/pods/nginxapp/proxy/`
 - Để truy cập từ máy host vào container ungdungnode(chạy cổng 8085) : `http://localhost:8001/api/v1/namespaces/default/pods/ungdungnode:8085/proxy/`
 
-# 4. Ví dụ về pod chạy nhiều containers
-## 4.1 Pod chyaj nhieefu containers
+# 4. Ví dụ về pod chạy nhiều containers & Pod with volumes
+## 4.1 Pod chạy nhiều container
 - Tạo file 4-nginx-swarmtest.yaml và apply 
 - Trong container nginx-swarmtest vừa mới được tạo, thì có 2 container là n1 và s1
 - Nếu truy cập vào container chạy pods này, Vì ta có 2 container chạy nên nó mặc định exec truy cập container đầu tiên trừ trên xuống dưới : `kubectl exec nginx-swarmtest ls / `
