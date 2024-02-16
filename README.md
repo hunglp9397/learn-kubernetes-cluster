@@ -305,3 +305,63 @@ replicaset.apps/rsapp   5         5         4       91m   app          ichte/swa
 NAME                                               REFERENCE          TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
 horizontalpodautoscaler.autoscaling/rsapp-scaler   ReplicaSet/rsapp   <unknown>/50%   5         10        5          3m39s
 ```
+
+# 6. Deployment trong K8S
+## 6.1 Định nghĩa
+- Deployment cũng tương tự như replicaset có chức năng sau:
+  +  quản lý các pods, nhân bản pods, tự động thay thế pods bị lỗi
+  + Đảm bảo các pods ở trong tình trạng đang chạy mặc dù đang sửa đổi, cập nhật, scale
+  + Về cơ bản thì deployment tạo ra các replicaset, Replicaset lại quản lí pods
+## 6.2 Ví dụ
+- Tạo thư mục deploy trong folder exams
+- Tạo file 1.myapp-deploy.yaml và apply
+- Lệnh kiểm tra các deployment: `kubectl get deploy`
+
+## 6.3 Thực thi các lệnh liên quan đến deployment
+- Trong file yaml có khai báo spec là sử dụng image: ichte/swarmtest:node
+- Giả sử muốn đổi sang sử dụng image: node thì replicaset (được tạo bởi deployment) sẽ như sau:
+```shell
+NAME                   DESIRED   CURRENT   READY   AGE     CONTAINERS   IMAGES                 SELECTOR
+deployapp-5455b4d455   3         3         3       62s     node         nginx                  app=deployapp,pod-template-hash=5455b4d455
+deployapp-6576b6b897   0         0         0       8m25s   node         ichte/swarmtest:node   app=deployapp,pod-template-hash=6576b6b897
+```
+- Có thể thấy replicaset cũ vẫn giữ nguyên, ko bị xóa, để có thể rollback lại 
+- Ngoài cách sửa deployment, thì có thể sửa trong manifest của deployment bằng lệnh: `kubectl edit deploy/deployapp`
+- Lệnh get thông tin manifest của deployment : `kubectl get deploy -o yaml`
+- Lấy thông tin chi tiết của deployment: `kubectl describe deploy/deployapp`
+- Lệnh xem lịch sử cập nhật của deployment: `kubectl rollout history deploy/deployapp`
+```shell
+Kết quả:
+PS C:\Users\hunglp> kubectl rollout history deploy/deployapp
+deployment.apps/deployapp
+REVISION  CHANGE-CAUSE
+1         <none>
+2         <none>
+3         <none>
+4         <none>
+```
+- Xem chi tiết lần cập nhật thứ 2: `kubectl rollout history deploy/deployapp --revision=2`
+```shell
+Kết quả:
+deployment.apps/deployapp with revision #2
+Pod Template:
+  Labels:       app=deployapp
+        pod-template-hash=5455b4d455
+  Containers:
+   node:
+    Image:      nginx
+    Port:       8085/TCP
+    Host Port:  0/TCP
+    Limits:
+      cpu:      100m
+      memory:   128Mi
+    Environment:        <none>
+    Mounts:     <none>
+  Volumes:      <none>
+```
+- Để rollback lại lần cập nhật thứ 2: `kubectl rollout undo deploy/deployapp --to-revision=2`
+
+## 6.4 Scale pods của deployment
+- Scale thủ công(ko hay dùng): `kubectl scale deploy/deployapp --replicas=3`
+- Scale tự động dựa trên trafic của pods (chính là Horizontal pod autoscaler ở mục 5)
+  + `kubectl autoscale deploy/deployapp --min=2 --max=4`
