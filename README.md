@@ -365,3 +365,78 @@ Pod Template:
 - Scale thủ công(ko hay dùng): `kubectl scale deploy/deployapp --replicas=3`
 - Scale tự động dựa trên trafic của pods (chính là Horizontal pod autoscaler ở mục 5)
   + `kubectl autoscale deploy/deployapp --min=2 --max=4`
+
+# 7. Metrix server
+- Metric server trong k8s giúp giám sát tài nguyên sử dụng trên cluster, Cung cấp các API để các thành phần khác truy vấn đến biết được và mức độ sử dụng tài nguyên (CPU, Memory) của pod, node, 
+- Horizontal pod autoscaler cần đến metric server để hoạt động chính xác
+
+# 8. Service
+## 8.1 Tổng quan
+- Service là một hệt thống cân bằng tải, 1 proxy, một hệ thống cân bằng tải
+- Service có một IP
+- Khi service nhận được các request, sẽ chuyển hướng các request đó tới các pod mà nó quản lý
+
+## 8.1 Ví dụ 1
+### Tạo service
+- Tạo folder svc, tạo file 1.svc1.yaml
+- Apply file yaml này `kubeclt apply -f 1.svc1.yaml`
+- Xuất file yaml của service: `kubectl get svc/svc1 -o yaml`
+- Xem chi tiết service : `kubectl describe svc/svc1`
+
+### Tạo endpoint cho service svc1 ở trên
+- Tạo file 2.endpoint.yaml
+- Apply file yaml này: `kubectl apply -f 2.endpoint.yaml`
+- Hiển thị tất cả endpoints: `kubectl get endpoints`
+- Xem lại chi tiết serices svc1, Có thể thấy svc1 đã có endpoints: 
+```shell
+PS C:\Users\hunglp> kubectl describe svc/svc1
+Name:              svc1
+Namespace:         default
+Labels:            <none>
+Annotations:       <none>
+Selector:          <none>
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.98.75.82
+IPs:               10.98.75.82
+Port:              <unset>  80/TCP
+TargetPort:        80/TCP
+Endpoints:         216.58.220.195:80
+Session Affinity:  None
+Events:            <none>
+PS C:\Users\hunglp>
+```
+### Sau khi có endpoint thì từ 1 pods tools (đang ko chạy được) có thể curl tới service svc1 này
+- Truy cập command line pods tools : `kubeclt exec -it tools bash`
+- Từ cmdline của pods tools, truy cập tới service svc1 : `curl <địa chỉ IP của service svc1>:80` -> Thì sẽ trả ra html của google
+## Ví dụ 2 : Thực hành tạo Service có Selector, chọn các Pod là Endpoint của Service
+- Tạo file 3.pods.yaml rồi apply ta được 2 pods sau:
+```shell
+ NAMESPACE↑            NAME        PF         READY                       RESTARTS STATUS                       IP                      NODE                   AGE      
+ default              myapp1       ●          1/1                          0 Running                         10.0.180.52             kube-worker-1          13s           
+ default              myapp2       ●          1/1                          0 Running                         10.0.180.53             kube-worker-1          13s
+```
+- Tạo service: 2.svc2.yaml và apply
+ + Tại file service này có khai báo selector, selector khai báo nhãn của những pods mà chỉ định làm endpoint của service này
+- Kiểm tra service svc2 này : `kubectl describe svc/svc2`
+```shell
+PS C:\Users\hunglp> kubectl describe svc/svc2
+Name:              svc2
+Namespace:         default
+Labels:            <none>
+Annotations:       <none>
+Selector:          app=app1
+Type:              ClusterIP
+IP Family Policy:  SingleStack
+IP Families:       IPv4
+IP:                10.99.180.209
+IPs:               10.99.180.209
+Port:              port1  80/TCP
+TargetPort:        80/TCP
+Endpoints:         10.0.180.52:80,10.0.180.53:80
+Session Affinity:  None
+Events:            <none>
+PS C:\Users\hunglp>
+```
+- Ta thấy có 2 địa chỉ endpoints này chính là IP của 2 pods myapp1 và myapp2

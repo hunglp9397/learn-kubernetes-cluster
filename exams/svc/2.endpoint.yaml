@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Endpoints
+metadata: 
+  name: svc1
+subsets:
+  - addresses:
+      - ip: 216.58.220.195 # Đây là IP của Google
+    ports:
+      - port: 80
