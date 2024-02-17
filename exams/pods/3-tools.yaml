@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: tools
-    image: hungnv2/coretools
+    image: hieurau4304/coretools
     resources: {}
     command: ["/bin/bash"]
     args: ["-c", "while true; do echo 'busybox running'; sleep 10;done"]
